@@ -1,0 +1,64 @@
+
+' Get random integer number from 1 to 8
+Function RND1TO8(R)
+  FNR=Int(Rnd(R)*7.98+1.01)
+End Function
+
+SUB FINDEMPTY(QX, QY)
+
+'PRINT "QUADRANT X="QX", QUADRANT Y="QY
+'FOR Y = 1 TO 8
+'  FOR X = 1 TO 8
+'    PRINT "("X+(QX-1)*8","Y+(QY-1)*8")="GALAXY(X+(QX-1)*8,Y+(QY-1)*8);
+'  NEXT X
+'  PRINT
+'NEXT Y   
+'PRINT
+
+END SUB
+
+' GENERATING GALAXY
+DIM GALAXY(64,64)
+DIM QUADRNTS(8,8)
+
+GALAXY(1,1) = 3
+GALAXY(3,4) = 3
+
+FOR QY = 1 TO 8
+  FOR QX = 1 TO 8
+
+    KLINGONS_IN_QUADRANT = 0
+    R1=Rnd(1)
+    If R1>.80 Then KLINGONS_IN_QUADRANT=1
+    If R1>.95 Then KLINGONS_IN_QUADRANT=2
+    If R1>.98 Then KLINGONS_IN_QUADRANT=3
+
+    STARBASES_IN_QUADRANT = 0
+    If Rnd(1)>.96 Then B3=1
+
+    STARS_IN_QUADRANT = RND1TO8(1)
+
+    
+    COUNTER = KLINGONS_IN_QUADRANT
+    DO WHILE COUNTER > 0
+      COUNTER = COUNTER - 1
+    LOOP
+
+    FINDEMPTY QX, QY
+
+  NEXT QX
+NEXT QY
+
+
+
+
+
+END
+
+FOR Y = 1 TO 10
+FOR X = 1 TO 12
+' PRINT "("X","Y")="GALAXY(X,Y)" ";
+PRINT GALAXY(X,Y);
+NEXT X
+PRINT 
+NEXT Y
