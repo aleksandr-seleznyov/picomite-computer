@@ -92,6 +92,7 @@ SUB SRS QX, QY
     'PRINT
   NEXT Y
   PRINT "  |####################################"
+  PRINT:PRINT:PRINT
 
 END SUB
 
@@ -123,7 +124,6 @@ SUB LRS QX, QY
       K = COUNTINQUADRANT(LQX, LQY, 1)
       B = COUNTINQUADRANT(LQX, LQY, 2)
       S = COUNTINQUADRANT(LQX, LQY, 3)
-      'PRINT K,B,S
       PRINT FORMAT$(K)+FORMAT$(B)+FORMAT$(S)+ FILLER$;
     ELSE
       PRINT "XXX ";
