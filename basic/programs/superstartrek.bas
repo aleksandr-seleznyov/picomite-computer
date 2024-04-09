@@ -27,6 +27,8 @@ FUNCTION COUNTINQUADRANT(QX, QY, OBJECT)
   FOR Y = 1 TO 8
     FOR X = 1 TO 8
       IF GALAXY(X+(QX-1)*8,Y+(QY-1)*8) = OBJECT THEN RESULT = RESULT + 1
+    NEXT X
+  NEXT Y
   COUNTINQUADRANT = RESULT
 END FUNCTION
 
@@ -42,7 +44,7 @@ END SUB
 FUNCTION DRAWOBJECT$(OBJECT)
   LOCAL RESULT$
   RESULT$=FORMAT$(OBJECT)
-  IF OBJECT = 0 THEN RESULT$=" " ' KLINGON
+  IF OBJECT = 0 THEN RESULT$=" " ' EMPTY SPACE
   IF OBJECT = 1 THEN RESULT$="K" ' KLINGON
   IF OBJECT = 2 THEN RESULT$="!" ' STARBASE
   IF OBJECT = 3 THEN RESULT$="*" ' STAR 
@@ -51,6 +53,117 @@ FUNCTION DRAWOBJECT$(OBJECT)
 
   DRAWOBJECT$ = RESULT$
 END FUNCTION
+
+
+SUB PRINTSYSINFO(SYSID)
+  LOCAL SYSM$(8) LENGTH 50
+  SYSM$(1) = "       STARDATE           "+FORMAT$(Int(T*10)*.1)
+  SYSM$(2) = "       CONDITION          "+CC$
+  SYSM$(3) = "       QUADRANT           "+FORMAT$(QUADRANTX)+","+FORMAT$(QUADRANTY)
+  SYSM$(4) = "       SECTOR             "+FORMAT$(ENTERPRISE(1))+","+FORMAT$(ENTERPRISE(1))
+  SYSM$(5) = "       PHOTON TORPEDOES   "+FORMAT$(Int(P))
+  SYSM$(6) = "       TOTAL ENERGY       "+FORMAT$(Int(E+S))
+  SYSM$(7) = "       SHIELDS            "+FORMAT$(Int(S))
+  SYSM$(8) = "       KLINGONS REMAINING "+FORMAT$(Int(K9))
+
+  PRINT SYSM$(SYSID)
+ 
+END SUB
+
+SUB SRS QX, QY
+  LOCAL X, Y, I
+  PRINT:PRINT:PRINT
+
+  PRINT "  X: |";
+  FOR I = 1 TO 8
+    PRINT " "+FORMAT$(I+(QX-1)*8, "%02g")+"|";
+  NEXT I
+  PRINT
+  PRINT "  +------------------------------------"
+  PRINT "  |####################################"
+  PRINT "Y |# +-1- -2- -3- -4- -5- -6- -7- -8- #"
+  FOR Y = 1 TO 8
+    PRINT FORMAT$(Y+(QY-1)*8, "%02g")+"|# "+FORMAT$(Y)+"";
+    FOR X = 1 TO 8
+      PRINT " "+DRAWOBJECT$(GALAXY(X+(QX-1)*8,Y+(QY-1)*8))+" .";
+    NEXT X
+    PRINT "#";
+    PRINTSYSINFO Y
+    'PRINT
+  NEXT Y
+  PRINT "  |####################################"
+
+END SUB
+
+SUB LRS QX, QY
+  LOCAL X, Y, S, B, K, LQX, LQY FILLER$
+  PRINT:PRINT:PRINT
+
+  PRINT "   ";
+  FOR I = -1 TO 1
+    PRINT FORMAT$(QX+I,"   %1g  ");
+  NEXT I
+  PRINT
+  PRINT "   +-----+-----+-----+"
+
+  FOR Y = -1 TO 1
+   PRINT FORMAT$(QY+Y," %1g ");
+   FOR X = -1 TO 1
+    LQX = QX + X
+    LQY = QY + Y
+
+    IF X=0 AND Y=0 THEN
+      FILLER$="="
+    ELSE 
+      FILLER$=" "
+    ENDIF 
+
+     PRINT "|"+FILLER$;
+     IF (LQX > 0) AND (LQY > 0) AND (LQX < 9) AND (LQY < 9)  THEN
+      K = COUNTINQUADRANT(LQX, LQY, 1)
+      B = COUNTINQUADRANT(LQX, LQY, 2)
+      S = COUNTINQUADRANT(LQX, LQY, 3)
+      'PRINT K,B,S
+      PRINT FORMAT$(K)+FORMAT$(B)+FORMAT$(S)+ FILLER$;
+    ELSE
+      PRINT "XXX ";
+    ENDIF
+   NEXT X
+   PRINT "|"
+   PRINT "   +-----+-----+-----+"
+  NEXT Y
+
+  PRINT:PRINT:PRINT
+  PRINT "ENTERPRIZE IS IN CETER OF RADAR, DEPICTED BY '=NNN=' SIGN"
+  PRINT "RADAR DIGITS ARE REPRESENT FOLLOWING:  K B S"
+  PRINT "                                       | | |"
+  PRINT "     NUMBER OR 'KLINGONS' >------------+ | |"
+  PRINT "     NUMBER OR 'STAR BASES' >------------+ |"
+  PRINT "     NUMBER OR 'STARS' >-------------------+"
+  PRINT
+  PRINT "FOR EXAMPLE: '123' MEANS THAT THERE ARE:"
+  PRINT "    '1' KLINGON, '2' STAR BASES, AND '3' STARS IN QUADRANT"
+  PRINT:PRINT:PRINT
+
+END SUB
+
+SUB NAV
+  LOCAL DIRECTION, SPEED, X, Y
+  INPUT "DIRECTION"; DIRECTION
+  INPUT "SPEED"; SPEED
+  DIRECTION = (DIRECTION - 1)* .785
+
+  X = (ENTERPRISE(1) + SPEED * COS(DIRECTION))
+  Y = (ENTERPRISE(2) + SPEED * SIN(DIRECTION))
+
+  GALAXY(ENTERPRISE(1), ENTERPRISE(2)) = 0
+  ENTERPRISE(1) = CINT(X): ENTERPRISE(2) = CINT(Y)
+  GALAXY(ENTERPRISE(1), ENTERPRISE(2)) = 9
+
+  QUADRANTX = INT((ENTERPRISE(1)-1) \ 8) +1 
+  QUADRANTY = INT((ENTERPRISE(2)-1) \ 8) +1 
+
+END SUB
 
 
 ' ###########################
@@ -96,54 +209,6 @@ FOR QY = 1 TO 8
   NEXT QX
 NEXT QY
 
-SUB PRINTSYSINFO(SYSID)
-  SELECT CASE SYSID   
-    CASE 1
-      PRINT "        STARDATE          ";Int(T*10)*.1
-    CASE 2
-      PRINT "        CONDITION          ";CC$
-    CASE 3
-      PRINT "        QUADRANT          ";Q1;",";Q2
-    CASE 4
-      PRINT "        SECTOR            ";S1;",";S2
-    CASE 5
-      PRINT "        PHOTON TORPEDOES  ";Int(P)
-    CASE 6
-      PRINT "        TOTAL ENERGY      ";Int(E+S)
-    CASE 7
-      PRINT "        SHIELDS           ";Int(S)
-    CASE 8
-      PRINT "        KLINGONS REMAINING";Int(K9)
-    CASE ELSE
-      PRINT "???:" SYSID
-  END SELECT 
-END SUB
-
-SUB SRS QX, QY
-  LOCAL X, Y, I
-  PRINT:PRINT:PRINT
-
-  PRINT "  X:|";
-  FOR I = 1 TO 8
-    PRINT " "+FORMAT$(I+(QX-1)*8, "%02g")+"|";
-  NEXT I
-  PRINT
-  PRINT "  +------------------------------------"
-  PRINT "  |####################################"
-  PRINT "Y |# +-1- -2- -3- -4- -5- -6- -7- -8- #"
-  FOR Y = 1 TO 8
-    PRINT FORMAT$(Y+(QY-1)*8, "%02g")+"|# "+FORMAT$(Y)+"";
-    FOR X = 1 TO 8
-      PRINT " "+DRAWOBJECT$(GALAXY(X+(QX-1)*8,Y+(QY-1)*8))+" .";
-    NEXT X
-    PRINT "#";
-    PRINTSYSINFO Y
-    'PRINT
-  NEXT Y
-  PRINT "  |####################################"
-
-END SUB
-
 IF STARBASES_TOTAL < 1 THEN
   X = RND1TO8()
   Y = RND1TO8()
@@ -158,6 +223,7 @@ IF STARBASES_TOTAL < 1 THEN
 ENDIF
 
 ' DETERMENING ENETRPRIZE POSITION
+RANDOMIZE EPOCH(NOW) 
 PUTX = 0: PUTY = 0
 PUTOBJECT RND1TO8(), RND1TO8(), 9
 ENTERPRISE(1) = PUTX
@@ -199,9 +265,12 @@ PRINT "ENTERPRIZE IS IN : (X="; ENTERPRISE(1); ", Y="; ENTERPRISE(2); ")"
 PRINT "QUADRANT IS : (X="; QUADRANTX; ", Y="; QUADRANTY; ")"
 
 
+LRS QUADRANTX, QUADRANTY
+
+MAINLOOP:
 SRS QUADRANTX, QUADRANTY
-
-
+NAV
+GOTO MAINLOOP
 
 END
 PRINT "0:" INT((0-1) \ 8) +1  
