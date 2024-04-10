@@ -53,14 +53,14 @@ END FUNCTION
 
 SUB PRINTSYSINFO(SYSID)
   LOCAL SYSM$(8) LENGTH 50
-  SYSM$(1) = "       STARDATE           "+FORMAT$(Int(T*10)*.1)
-  SYSM$(2) = "       CONDITION          "+CC$
-  SYSM$(3) = "       QUADRANT           "+FORMAT$(QUADRANTX)+","+FORMAT$(QUADRANTY)
-  SYSM$(4) = "       SECTOR             "+FORMAT$(ENTERPRISE(1))+","+FORMAT$(ENTERPRISE(2))
-  SYSM$(5) = "       PHOTON TORPEDOES   "+FORMAT$(Int(P))
-  SYSM$(6) = "       TOTAL ENERGY       "+FORMAT$(Int(E+S))
-  SYSM$(7) = "       SHIELDS            "+FORMAT$(Int(S))
-  SYSM$(8) = "       KLINGONS REMAINING "+FORMAT$(Int(K9))
+  SYSM$(1) = "       STARDATE           " + FORMAT$(Int(T*10)*.1)
+  SYSM$(2) = "       CONDITION          " + CC$
+  SYSM$(3) = "       QUADRANT           " + FORMAT$(QUADRANTX)+","+FORMAT$(QUADRANTY)
+  SYSM$(4) = "       SECTOR             " + FORMAT$(ENTERPRISE(1))+","+FORMAT$(ENTERPRISE(2))
+  SYSM$(5) = "       PHOTON TORPEDOES   " + FORMAT$(Int(P))
+  SYSM$(6) = "       TOTAL ENERGY       " + FORMAT$(Int(E+S))
+  SYSM$(7) = "       SHIELDS            " + FORMAT$(Int(S))
+  SYSM$(8) = "       KLINGONS REMAINING " + FORMAT$(Int(K9))
 
   PRINT SYSM$(SYSID)
 END SUB
@@ -139,6 +139,7 @@ SUB LRS
 
   PRINT
   PRINT "*:LONG RANGE SCAN:*" 
+  PRINT
   PRINT "RADAR SHOWS DATA ABOUT QUADRANTS DIRECTLY AROUND ENTERPRISE."
   PRINT "ENTERPRIZE IS IN CETER OF RADAR, DEPICTED BY '=NNN=' SIGN"
   PRINT
@@ -275,6 +276,22 @@ GENERATEGALAXY
 PLACEENTERPRISE
 
 SRS
+
+
+PRINT"\NAV\ COMMAND = WARP ENGINE CONTROL --               "
+PRINT"     COURSE IS IN A CIRCULAR NUMERICAL               "
+PRINT"     VECTOR ARRANGEMENT AS SHOWN             6 7 8   "
+PRINT"     INTEGER AND REAL VALUES MAY BE           \|/    "
+PRINT"     USED.  (THUS COURSE 1.5 IS HALF-      5 --*-- 1 "
+PRINT"     WAY BETWEEN 1 AND 2                      /|\    "
+PRINT"                                             4 3 2   "
+PRINT"     VALUES MAY APPROACH 9.0, WHICH"
+PRINT"     ITSELF IS EQUIVALENT TO 1.0"
+PRINT"                                            COURSE"
+PRINT"     ONE WARP FACTOR IS THE SIZE OF "
+PRINT"     ONE QUADTANT.  THEREFORE, TO GET"
+PRINT"     FROM QUADRANT 6,5 TO 5,5, YOU WOULD"
+PRINT"     USE COURSE 3, WARP FACTOR 1."
 
 MAINLOOP:
   INPUT "COMMAND, SIR"; COMMAND$
