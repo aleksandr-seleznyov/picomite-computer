@@ -422,4 +422,275 @@ If S1<1 Or S1>=9 Or S2<1 Or S2>=9 Then GoTo 3500
 5690 If D(6)>=0 Then 5910
 5700 Print "DAMAGE CONTROL REPORT NOT AVAILABLE":If D0=0 Then GoTo 1990
 5720 D3=0:For I=1 To 8:If D(I)<0 Then D3=D3+.1
+5760 Next I: If D3=0 Then GoTo 1990
+5780 Print :D3=D3+D4:If D3>=1 Then D3=.9
+5810 Print "TECHNICIANS STANDING BY TO EFFECT REPAIRS TO YOUR SHIP;"
+5820 Print "ESTIMATED TIME TO REPAIR:";.01*Int(100*D3);"STARDATES"
+5840 Input "WILL YOU AUTHORIZE THE REPAIR ORDER (Y/N)";aa$
+5860 If aa$<>"Y"Then GoTo 1990
+5870 For I=1 To 8:If D(I)<0 Then D(I)=0
 5890 Next I: T=T+D3+.1
+5910 Print :Print "DEVICE             STATE OF REPAIR":For R1=1 To 8
+5920 GoSub 8790: Print G2$;Left$(ZZ$,25-Len(G2$));Int(D(R1)*100)*.01
+5950 Next R1: Print :If D0<>0 Then GoTo 5720
+5980 GoTo 1990
+5990 Rem KLINGONS SHOOTING
+6000 If K3<=0 Then Return
+6010 If D0<>0 Then Print "STARBASE SHIELDS PROTECT THE ENTERPRISE":Return
+6040 For I=1 To 3:If K(I,3)<=0 Then GoTo 6200
+6060 H=Int((K(I,3)/FND(1))*(2+Rnd(1))):S=S-H:K(I,3)=K(I,3)/(3+Rnd(0))
+6080 Print H;" UNIT HIT ON ENTERPRISE FROM SECTOR";K(I,1);",";K(I,2)
+6090 If S<=0 Then GoTo 6240
+6100 Print "      <SHIELDS DOWN TO";S;" UNITS>":If H<20 Then GoTo 6200
+6120 If Rnd(1)>.6 Or H/S<=.02 Then GoTo 6200
+6140 R1=FNR(1):D(R1)=D(R1)-H/S-.5*Rnd(1):GoSub 8790
+6170 Print "DAMAGE CONTROL REPORTS ";G2$;" DAMAGED BY THE HIT'"
+6200 Next I: Return
+6210 Rem END OF GAME
+6220 Print "IT IS STARDATE";T:GoTo 6270
+6240 Print :Print "THE ENTERPRISE HAS BEEN DESTROYED.  THEN FEDERATION ";
+6250 Print "WILL BE CONQUERED":GoTo 6220
+6270 Print "THERE WERE";K9;" KLINGON BATTLE CRUISERS LEFT AT"
+6280 Print "THE END OF YOUR MISSION."
+6290 Print :Print :If B9=0 Then GoTo 6360
+6310 Print "THE FEDERATION IS IN NEED OF A NEW STARSHIP COMMANDER"
+6320 Print "FOR A SIMILAR MISSION -- IF THERE IS A VOLUNTEER,"
+6330 Input "LET HIM STEP FORWARD AND ENTER 'AYE'";aa$:If aa$="AYE" Then Run
+6360 End
+6370 Print "CONGRULATION, CAPTAIN!  THEN LAST KLINGON BATTLE CRUISER"
+6380 Print "MENACING THE FDERATION HAS BEEN DESTROYED.":Print
+6400 Print "YOUR EFFICIENCY RATING IS";1000*(K7/(T-T0))^2:GoTo 6290
+
+
+6430 Rem SHORT RANGE SENSOR SCAN & STARTUP SUBROUTINE
+  For I=S1-1 To S1+1
+  For J=S2-1 To S2+1
+    If Int(I+.5)<1 Or Int(I+.5)>8 Or Int(J+.5)<1 Or Int(J+.5)>8 Then GoTo 6540
+    'aa$=">!<":Z1=I:Z2=J:GoSub 8830
+    'If Z3=1 Then GoTo 6580
+    Z1=I:Z2=J
+    If isObjectInCoordinates(">!<", Z1, Z2)=1 Then
+      D0=1:CC$="DOCKED":E=E0:P=P0
+      Print "SHIELDS DROPPED FOR DOCKING PURPOSES"
+      S=0:GoTo 6720
+    EndIf
+
+6540 Next J
+    Next I
+    D0=0
+    GoTo 6650
+
+6580 D0=1:CC$="DOCKED":E=E0:P=P0
+6620 Print "SHIELDS DROPPED FOR DOCKING PURPOSES":S=0:GoTo 6720
+
+
+
+6650 Rem check condition status
+If K3>0 Then
+  CC$="*RED*"
+ElseIf E<E0*.1 Then
+  CC$="YELLOW"
+Else
+  CC$="GREEN"
+EndIf
+
+If D(2)<0 Then
+  Print
+  Print "*** SHORT RANGE SENSORS ARE OUT ***"
+  Print
+  Return
+EndIf
+
+6770 Rem O1$="---------------------------------":Print O1$:For I=1 To 8
+         O1$="+-1- -2- -3- -4- -5- -6- -7- -8->Y ":Print O1$
+     For I=1 To 8
+6820 For J=(I-1)*24+1 To (I-1)*24+22 Step 3
+       If ((J-1) Mod 24)=0 Then
+         Print Str$(J\24+1);
+       Else
+         Print "_";
+       EndIf
+       Print Mid$(Q$,J,3);
+       Next J
+6830 On I GoTo 6850,6900,6960,7020,7070,7120,7180,7240
+6850 Print "        STARDATE          ";Int(T*10)*.1:GoTo 7260
+6900 Print "        CONDITION          ";CC$:GoTo 7260
+6960 Print "        QUADRANT          ";Q1;",";Q2:GoTo 7260
+7020 Print "        SECTOR            ";S1;",";S2:GoTo 7260
+7070 Print "        PHOTON TORPEDOES  ";Int(P):GoTo 7260
+7120 Print "        TOTAL ENERGY      ";Int(E+S):GoTo 7260
+7180 Print "        SHIELDS           ";Int(S):GoTo 7260
+7240 Print "        KLINGONS REMAINING";Int(K9)
+7260 Next I
+     O1$="X"
+     Print O1$
+     Return
+
+
+
+
+
+7280 Rem LIBRARY COMPUTER CODE
+7290 If D(8)<0 Then Print "COMPUTER DISABLED":GoTo 1990
+7320 Input "COMPUTER ACTIVE AND AWAITING COMMAND";A:If A<0 Then GoTo 1990
+7350 Print :H8=1:On A+1 GoTo 7540,7900,8070,8500,8150,7400
+7360 Print "FUNCTIONS AVAILABLE FROM LIBRARY-COMPUTER:"
+7370 Print "   0 = CUMULATIVE GALACTIC RECORD"
+7372 Print "   1 = STATUS REPORT"
+7374 Print "   2 = PHOTON TORPEDO DATA"
+7376 Print "   3 = STARBASE NAV DATA"
+7378 Print "   4 = DIRECTION/DISTANCE CALCULATOR"
+7380 Print "   5 = GALAXY 'REGION NAME' MAP":Print :GoTo 7320
+7390 Rem SETUP TO CHANGE CUM GAL RECORD TO GALAXY MAP
+7400 H8=0:G5=1:Print "                        THE GALAXY":GoTo 7550
+7530 Rem CUM GALACTIC RECORD
+7540 Rem INPUT"DO YOU WANT A HARDCOPY? IS THE TTY ON (Y/N)";aa$
+7542 Rem IFaa$="Y"THENPOKE1229,2:POKE1237,3:NULL1
+7543 Print :Print "        ";
+7544 Print "COMPUTER RECORD OF GALAXY FOR QUADRANT";Q1;",";Q2
+7546 Print
+7550 Print "       1     2     3     4     5     6     7     8"
+7560 O1$="     ----- ----- ----- ----- ----- ----- ----- -----"
+7570 Print O1$:For I=1 To 8:Print I;:If H8=0 Then GoTo 7740
+7630 For J=1 To 8:Print "   ";:If Z(I,J)=0 Then Print "***";:GoTo 7720
+7700 Print Right$(Str$(Z(I,J)+1000),3);
+7720 Next J: GoTo 7850
+7740 Z4=I:Z5=1:GoSub 9030:J0=Int(15-.5*Len(G2$)):Print Tab(J0);G2$;
+7800 Z5=5:GoSub 9030:J0=Int(39-.5*Len(G2$)):Print Tab(J0);G2$;
+7850 Print :Print O1$:Next I:Print :GoTo 1990
+7890 Rem STATUS REPORT
+7900 Print "   STATUS REPORT:":XX$="":If K9>1 Then XX$="S"
+7940 Print " KLINGON";XX$;" LEFT: ";K9
+7960 Print "MISSION MUST BE COMPLETED IN";.1*Int((T0+T9-T)*10);"STARDATES"
+7970 XX$="S":If B9<2 Then XX$="":If B9<1 Then GoTo 8010
+7980 Print "THE FEDERATION IS MAINTAINING";B9;"STARBASE";XX$;" IN THE GALAXY"
+7990 GoTo 5690
+8010 Print "YOUR STUPIDITY HAS LEFT YOU ON YOUR ON IN"
+8020 Print "  THE GALAXY -- YOU HAVE NO STARBASES LEFT!":GoTo 5690
+8060 Rem TORPEDO, BASE NAV, D/D CALCULATOR
+8070 If K3<=0 Then GoTo 4270
+8080 XX$="":If K3>1 Then XX$="S"
+8090 Print "FROM ENTERPRISE TO KLINGON BATTLE CRUSER";XX$
+8100 H8=0:For I=1 To 3:If K(I,3)<=0 Then GoTo 8480
+8110 W1=K(I,1):X=K(I,2)
+8120 C1=S1:A=S2:GoTo 8220
+8150 Print "DIRECTION/DISTANCE CALCULATOR:"
+8160 Print "YOU ARE AT QUADRANT ";Q1;",";Q2;" SECTOR ";S1;",";S2
+8170 Print "PLEASE ENTER":Input "  INITIAL COORDINATES (X,Y)";C1,A
+8200 Input "  FINAL COORDINATES (X,Y)";W1,X
+8220 X=X-A:A=C1-W1:If X<0 Then GoTo 8350
+8250 If A<0 Then GoTo 8410
+8260 If X>0 Then GoTo 8280
+8270 If A=0 Then C1=5:GoTo 8290
+8280 C1=1
+8290 If Abs(A)<=Abs(X) Then GoTo 8330
+8310 Print "DIRECTION =";C1+(((Abs(A)-Abs(X))+Abs(A))/Abs(A)):GoTo 8460
+8330 Print "DIRECTION =";C1+(Abs(A)/Abs(X)):GoTo 8460
+8350 If A>0 Then C1=3:GoTo 8420
+8360 If X<>0 Then C1=5:GoTo 8290
+8410 C1=7
+8420 If Abs(A)>=Abs(X) Then 8450
+8430 Print "DIRECTION =";C1+(((Abs(X)-Abs(A))+Abs(X))/Abs(X)):GoTo 8460
+8450 Print "DIRECTION =";C1+(Abs(X)/Abs(A))
+8460 Print "DISTANCE =";Sqr(X^2+A^2):If H8=1 Then GoTo 1990
+8480 Next I: GoTo 1990
+8500 If B3<>0 Then Print "FROM ENTERPRISE TO STARBASE:":W1=B4:X=B5:GoTo 8120
+8510 Print "MR. SPOCK REPORTS,  'SENSORS SHOW NO STARBASES IN THIS";
+8520 Print " QUADRANT.'":GoTo 1990
+
+'8580 Rem FIND EMPTY PLACE IN QUADRANT (FOR THINGS)
+'8590 R1=FNR(1):R2=FNR(1):aa$="   ":Z1=R1:Z2=R2:GoSub 8830
+'If Z3=0 Then GoTo 8590
+'8600 Return
+'''''
+'8820 Rem STRING COMPARISON IN QUADRANT ARRAY
+'8830 Z1=Int(Z1+.5):Z2=Int(Z2+.5):S8=(Z2-1)*3+(Z1-1)*24+1:Z3=0
+'8890 If Mid$(Q$,S8,3)<>aa$ Then Return
+'8900 Z3=1:Return
+'''''
+Sub FindEmptyPlaceInQuadrant
+    startover: 'entrypoint for retry
+    R1=FNR(1):R2=FNR(1):aa$="   "
+    Z1=R1:Z2=R2
+    Z1=Int(Z1+.5):Z2=Int(Z2+.5)
+    POSITION=(Z2-1)*3+(Z1-1)*24+1
+    If Mid$(Q$,POSITION,3)<>aa$ Then GoTo startover
+End Sub
+
+
+8660 Rem INSERT IN STRING ARRAY FOR QUADRANT
+8670 S8=Int(Z2-.5)*3+Int(Z1-.5)*24+1
+8675 If Len(aa$)<>3 Then Print "ERROR":STOP
+8680 If S8=1 Then Q$=aa$+Right$(Q$,189):Return
+8690 If S8=190 Then Q$=Left$(Q$,189)+aa$:Return
+8700 Q$=Left$(Q$,S8-1)+aa$+Right$(Q$,190-S8):Return
+
+Sub InsertObjectToQuadrant OBJ$, X, Y
+    If Len(OBJ$)<>3 Then Print "ERROR":STOP
+
+    POSITION=Int(Y-.5)*3+Int(X-.5)*24+1
+    If POSITION=1 Then
+      Q$=OBJ$+Right$(Q$,189)
+    ElseIf POSITION=190 Then
+      Q$=Left$(Q$,189)+OBJ$
+    Else
+      Q$=Left$(Q$,POSITION-1)+OBJ$+Right$(Q$,190-POSITION)
+    EndIf
+End Sub
+
+8780 Rem PRINTS DEVICE NAME
+8790 On R1 GoTo 8792,8794,8796,8798,8800,8802,8804,8806
+8792 G2$="WARP ENGINES":Return
+8794 G2$="SHORT RANGE SENSORS":Return
+8796 G2$="LONG RANGE SENSORS":Return
+8798 G2$="PHASER CONTROL":Return
+8800 G2$="PHOTON TUBES":Return
+8802 G2$="DAMAGE CONTROL":Return
+8804 G2$="SHIELD CONTROL":Return
+8806 G2$="LIBRARY-COMPUTER":Return
+
+8820 Rem STRING COMPARISON IN QUADRANT ARRAY
+8830 Z1=Int(Z1+.5):Z2=Int(Z2+.5):S8=(Z2-1)*3+(Z1-1)*24+1:Z3=0
+8890 If Mid$(Q$,S8,3)<>aa$ Then Return
+8900 Z3=1:Return
+
+
+Function isObjectInCoordinates(OBJ$, X, Y)
+  Z1=Int(X+.5)
+  Z2=Int(Y+.5)
+  POSITION=(Z2-1)*3+(Z1-1)*24+1
+  If Mid$(Q$,POSITION,3)=OBJ$ Then
+    isObjectInCoordinates=1
+  Else
+    isObjectInCoordinates=0
+  EndIf
+End Function
+
+
+9010 Rem QUADRANT NAME IN G2$ FROM Z4,Z5 (=Q1,Q2)
+9020 Rem CALL WITH G5=1 TO GET REGION NAME ONLY
+9030 If Z5<=4 Then On Z4 GoTo 9040,9050,9060,9070,9080,9090,9100,9110
+9035 GoTo 9120
+9040 G2$="ANTARES":GoTo 9210
+9050 G2$="RIGEL":GoTo 9210
+9060 G2$="PROCYON":GoTo 9210
+9070 G2$="VEGA":GoTo 9210
+9080 G2$="CANOPUS":GoTo 9210
+9090 G2$="ALTAIR":GoTo 9210
+9100 G2$="SAGITTARIUS":GoTo 9210
+9110 G2$="POLLUX":GoTo 9210
+9120 On Z4 GoTo 9130,9140,9150,9160,9170,9180,9190,9200
+9130 G2$="SIRIUS":GoTo 9210
+9140 G2$="DENEB":GoTo 9210
+9150 G2$="CAPELLA":GoTo 9210
+9160 G2$="BETELGEUSE":GoTo 9210
+9170 G2$="ALDEBARAN":GoTo 9210
+9180 G2$="REGULUS":GoTo 9210
+9190 G2$="ARCTURUS":GoTo 9210
+9200 G2$="SPICA"
+9210 If G5<>1 Then On Z5 GoTo 9230,9240,9250,9260,9230,9240,9250,9260
+9220 Return
+9230 G2$=G2$+" I":Return
+9240 G2$=G2$+" II":Return
+9250 G2$=G2$+" III":Return
+9260 G2$=G2$+" IV":Return
